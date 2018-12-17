@@ -111,45 +111,50 @@ In Exercise 2 the filterd point cloud data used to cluster each item data togoth
 
 ```python
 
-    # Euclidean Clustering
-    white_cloud = XYZRGB_to_XYZ(extracted_outliers)# Apply function to convert XYZRGB to XYZ
-    tree = white_cloud.make_kdtree()
+# Euclidean Clustering
+white_cloud = XYZRGB_to_XYZ(extracted_outliers)# Apply function to convert XYZRGB to XYZ
+tree = white_cloud.make_kdtree()
 
-    # Create Cluster-Mask Point Cloud to visualize each cluster separately
-    # Create a cluster extraction object
-    ec = white_cloud.make_EuclideanClusterExtraction()
-    # Set tolerances for distance threshold 
-    ec.set_ClusterTolerance(0.01) #0.04
-    # Minimum and maximum cluster size (in points)
-    ec.set_MinClusterSize(10) 
-    ec.set_MaxClusterSize(9500)
-    # Search the k-d tree for clusters
-    ec.set_SearchMethod(tree)
-    # Extract indices for each of the discovered clusters
-    cluster_indices = ec.Extract()
+# Create Cluster-Mask Point Cloud to visualize each cluster separately
+# Create a cluster extraction object
+ec = white_cloud.make_EuclideanClusterExtraction()
+# Set tolerances for distance threshold 
+ec.set_ClusterTolerance(0.01) #0.04
+# Minimum and maximum cluster size (in points)
+ec.set_MinClusterSize(10) 
+ec.set_MaxClusterSize(9500)
+# Search the k-d tree for clusters
+ec.set_SearchMethod(tree)
+# Extract indices for each of the discovered clusters
+cluster_indices = ec.Extract()
 
-    cluster_color = get_color_list(len(cluster_indices))
+cluster_color = get_color_list(len(cluster_indices))
 
-    color_cluster_point_list = []
+color_cluster_point_list = []
 
-    for j, indices in enumerate(cluster_indices):
-        for i, indice in enumerate(indices):
-            color_cluster_point_list.append([white_cloud[indice][0],
-                                        white_cloud[indice][1],
-                                        white_cloud[indice][2],
-                                         rgb_to_float(cluster_color[j])])
-            
-    #Create new cloud containing all clusters, each with unique color
-    cluster_cloud = pcl.PointCloud_PointXYZRGB()
-    cluster_cloud.from_list(color_cluster_point_list)
+for j, indices in enumerate(cluster_indices):
+for i, indice in enumerate(indices):
+    color_cluster_point_list.append([white_cloud[indice][0],
+                                white_cloud[indice][1],
+                                white_cloud[indice][2],
+                                 rgb_to_float(cluster_color[j])])
+
+#Create new cloud containing all clusters, each with unique color
+cluster_cloud = pcl.PointCloud_PointXYZRGB()
+cluster_cloud.from_list(color_cluster_point_list)
 ```
 
 #### 2. Complete Exercise 3 Steps.  Features extracted and SVM trained.  Object recognition implemented.
 Here is an example of how to include an image in your writeup.
 
+the point cloud data is filterd , and grouped into clusters now its time to recognize each cluster. to do Classification there first must be a feature data, and a teained classifire. to generate features for each item the sensor stick world is launched, then each item appers with rondomized angles. as shown in the image below:
 
+>> insert an image for the sensor stick training palce
 
-here talk about the meathod used for classeficaltion and how its done, talk about the stips to ganarate features and train SVM
+the generated features data is used to train a classfire. I first tested 
+Now the SVM classfire is trained using the generated features data, 
+
+here talk about the method used for classeficaltion and how its done, talk about the stips to ganarate features and train SVM
 lastly show the reaslts of each items lists , or just show the learning expriance of changing the number of loops and compaire between 
 RGB and "HUV" 
 
