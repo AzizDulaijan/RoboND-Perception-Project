@@ -107,7 +107,42 @@ extracted_outliers = cloud_filtered.extract(inliers, negative=True)
 
 #### 2. Complete Exercise 2 steps: Pipeline including clustering for segmentation implemented.  
 
-talk abot learning about the clustaring then explain how the pipeline works and put the code
+In Exercise 2 the filterd point cloud data used to cluster each item data togother. First, the point cloud data is converted from RGB XYZ to XYZ because the data is clusterd based on postion. By using Euclidean Clustering algorithm the data is clustered with a specific minimam points per cluster and a maximam. There is tolerances for distance threshold. the fallowing code is presented with comments for explanation:
+
+```python
+
+    # Euclidean Clustering
+    white_cloud = XYZRGB_to_XYZ(extracted_outliers)# Apply function to convert XYZRGB to XYZ
+    tree = white_cloud.make_kdtree()
+
+    # Create Cluster-Mask Point Cloud to visualize each cluster separately
+    # Create a cluster extraction object
+    ec = white_cloud.make_EuclideanClusterExtraction()
+    # Set tolerances for distance threshold 
+    ec.set_ClusterTolerance(0.01) #0.04
+    # Minimum and maximum cluster size (in points)
+    ec.set_MinClusterSize(10) 
+    ec.set_MaxClusterSize(9500)
+    # Search the k-d tree for clusters
+    ec.set_SearchMethod(tree)
+    # Extract indices for each of the discovered clusters
+    cluster_indices = ec.Extract()
+
+    cluster_color = get_color_list(len(cluster_indices))
+
+    color_cluster_point_list = []
+
+    for j, indices in enumerate(cluster_indices):
+        for i, indice in enumerate(indices):
+            color_cluster_point_list.append([white_cloud[indice][0],
+                                        white_cloud[indice][1],
+                                        white_cloud[indice][2],
+                                         rgb_to_float(cluster_color[j])])
+            
+    #Create new cloud containing all clusters, each with unique color
+    cluster_cloud = pcl.PointCloud_PointXYZRGB()
+    cluster_cloud.from_list(color_cluster_point_list)
+```
 
 #### 2. Complete Exercise 3 Steps.  Features extracted and SVM trained.  Object recognition implemented.
 Here is an example of how to include an image in your writeup.
