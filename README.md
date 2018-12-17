@@ -16,9 +16,17 @@
 
 [image1]: Images/table.PNG
 [image2]: Images/items_without_table.PNG
+# image 3 dude
 [image4]: Images/training.PNG
 [image5]: Images/figure_1-RGB.png
 [image6]: Images/figure_1-HSV.png
+[image7]: Images/figure_1-1.png
+[image8]: Images/figure_22.png
+[image9]: Images/figure_3.png
+[image10]: Images/items_1.png
+[image11]: Images/items_2.png
+[image12]: Images/items_3_2.png
+
 
 ---
 ### Writeup / README
@@ -142,15 +150,25 @@ for i, indice in enumerate(indices):
                                 white_cloud[indice][2],
                                  rgb_to_float(cluster_color[j])])
 
-#Create new cloud containing all clusters, each with unique color
+# Create new cloud containing all clusters, each with unique color
 cluster_cloud = pcl.PointCloud_PointXYZRGB()
 cluster_cloud.from_list(color_cluster_point_list)
+
+# Convert PCL data to ROS messages
+ros_cloud_objects = pcl_to_ros(extracted_outliers)
+ros_cloud_table = pcl_to_ros(extracted_inliers)
+ros_cluster_cloud = pcl_to_ros(cluster_cloud)
+
+# Publish ROS messages
+pcl_cluster_pub.publish(ros_cluster_cloud)
+pcl_objects_pub.publish(ros_cloud_objects)
+pcl_table_pub.publish(ros_cloud_table)
+
 ```
 
 #### 2. Complete Exercise 3 Steps.  Features extracted and SVM trained.  Object recognition implemented.
-Here is an example of how to include an image in your writeup.
 
-the point cloud data is filterd , and grouped into clusters now its time to recognize each cluster. to do Classification there first must be a feature data, and a teained classifire. to generate features for each item the sensor stick world is launched, then each item appers with rondomized angles. as shown in the image below:
+The point cloud data is filterd , and grouped into clusters now its time to recognize each cluster. to do Classification there first must be a feature data, and a teained classifire. to generate features for each item the sensor stick world is launched, then each item appers with rondomized angles. as shown in the image below:
 
 ![alt text][image4]
 
@@ -159,12 +177,59 @@ the generated features data is used to train a classfire. SVM is the classifire 
 ![alt text][image5]
 ![alt text][image6]
 
-Here are the SVM results of each item list for the project:
+>> Object recognition steps have been implemented in the pcl_callback() function within template Python script. 
 
+After that using the genarated model from SVM, the code go throuh each cluster and and add them to detected objects list. here is the code for that: 
 
-here talk about the method used for classeficaltion and how its done, talk about the stips to ganarate features and train SVM
-lastly show the reaslts of each items lists , or just show the learning expriance of changing the number of loops and compaire between 
-RGB and "HUV" 
+```python
+
+# Classify the clusters! (loop through each detected cluster one at a time)
+detected_objects_labels = []
+detected_objects = []
+for index, pts_list in enumerate(cluster_indices):
+    # Grab the points for the cluster from the extracted outliers (cloud_objects)
+    pcl_cluster = extracted_outliers.extract(pts_list)
+    # Convert the cluster from pcl to ROS using helper function
+    ros_cluster = pcl_to_ros(pcl_cluster)
+    
+    # Extract histogram features
+    #change sample_cloud to ros_cluster
+    chists = compute_color_histograms(ros_cluster, using_hsv=True)
+    normals = get_normals(ros_cluster)
+    nhists = compute_normal_histograms(normals)
+    feature = np.concatenate((chists, nhists))
+    # comm ---- labeled_features.append([feature, model_name])
+    # Make the prediction, retrieve the label for the result
+    # and add it to detected_objects_labels list
+    prediction = clf.predict(scaler.transform(feature.reshape(1,-1)))
+    label = encoder.inverse_transform(prediction)[0]
+    detected_objects_labels.append(label)
+
+    # Publish a label into RViz
+    label_pos = list(white_cloud[pts_list[0]])
+    label_pos[2] += .25 #was 0.4
+    object_markers_pub.publish(make_label(label,label_pos, index))
+
+    # Add the detected object to the list of detected objects.
+    do = DetectedObject()
+    do.label = label
+    do.cloud = ros_cluster
+    detected_objects.append(do)
+
+rospy.loginfo('Detected {} objects: {}'.format(len(detected_objects_labels), detected_objects_labels))
+
+# Publish the list of detected objects
+# This is the output you'll need to complete the upcoming project!
+detected_objects_pub.publish(detected_objects)
+```
+Here are the SVM results of each items list for the project:
+
+### list 1:
+![alt text][image7]
+### list 2:
+![alt text][image8]
+### list 3:
+![alt text][image9]
 
 ### Pick and Place Setup
 
@@ -172,7 +237,9 @@ RGB and "HUV"
 
 here add an image of each items set how the robots classefied them first one (3/3) secound one (4/5) last one somehow (8/8) or (9/8)
 
-
+![alt text][image10]
+![alt text][image11]
+![alt text][image12]
 
 And here's another image! 
 ![demo-2](https://user-images.githubusercontent.com/20687560/28748286-9f65680e-7468-11e7-83dc-f1a32380b89c.png)
