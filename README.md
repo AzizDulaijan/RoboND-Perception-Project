@@ -14,6 +14,9 @@
 ## [Rubric](https://review.udacity.com/#!/rubrics/1067/view) Points
 ### Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
 
+[image1]:images/table.PNG
+[image2]:images/items_without_table.PNG
+
 ---
 ### Writeup / README
 
@@ -24,7 +27,9 @@ You're reading it!
 ### Exercise 1, 2 and 3 pipeline implemented
 #### 1. Complete Exercise 1 steps. Pipeline for filtering and RANSAC plane fitting implemented.
 
->> put an image for the table and objects? 
+
+![alt text][image1]
+![alt text][image2]
 
 In Exercise 1 the goal is to filter a point cloud data based on known information. To do it first downsample the data so it becomes easier to compute.Then, spasify the range from the view that the objects are in. Here the range in z axis is between (0.6,1.1) and y axis (-0.45,0.45).Lastly, Random Sample Consensus (RANSAC) is used to saparate the items from the table. The comments on the fallowing code explain the steps:
 
@@ -107,7 +112,7 @@ talk abot learning about the clustaring then explain how the pipeline works and 
 #### 2. Complete Exercise 3 Steps.  Features extracted and SVM trained.  Object recognition implemented.
 Here is an example of how to include an image in your writeup.
 
-![demo-1](https://user-images.githubusercontent.com/20687560/28748231-46b5b912-7467-11e7-8778-3095172b7b19.png)
+
 
 here talk about the meathod used for classeficaltion and how its done, talk about the stips to ganarate features and train SVM
 lastly show the reaslts of each items lists , or just show the learning expriance of changing the number of loops and compaire between 
