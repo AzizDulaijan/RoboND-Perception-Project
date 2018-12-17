@@ -17,6 +17,8 @@
 [image1]: Images/table.PNG
 [image2]: Images/items_without_table.PNG
 [image4]: Images/training.PNG
+[image5]: Images/figure_1-RGB.png
+[image6]: Images/figure_1-HSV.png
 
 ---
 ### Writeup / README
@@ -152,8 +154,13 @@ the point cloud data is filterd , and grouped into clusters now its time to reco
 
 ![alt text][image4]
 
-the generated features data is used to train a classfire. SVM is the classifire used in this program. I have tested the traing SVM using RGB and HSV and with diffrant nuber of iterations, here are the results  
-Now the SVM classfire is trained using the generated features data, 
+the generated features data is used to train a classfire. SVM is the classifire used in this program. I have tested traing SVM using RGB and HSV and with diffrant number of iterations, here are the results: 
+
+![alt text][image5]
+![alt text][image6]
+
+Here are the SVM results of each item list for the project:
+
 
 here talk about the method used for classeficaltion and how its done, talk about the stips to ganarate features and train SVM
 lastly show the reaslts of each items lists , or just show the learning expriance of changing the number of loops and compaire between 
