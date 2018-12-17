@@ -1,9 +1,5 @@
 ## Project: Perception Pick & Place
-### Writeup Template: You can use this file as a template for your writeup if you want to submit it as a markdown file, but feel free to use some other method and submit a pdf if you prefer.
-
 ---
-
-
 # Required Steps for a Passing Submission:
 1. Extract features and train an SVM model on new objects (see `pick_list_*.yaml` in `/pr2_robot/config/` for the list of models you'll be trying to identify). 
 2. Write a ROS node and subscribe to `/pr2/world/points` topic. This topic contains noisy point cloud data that you must work with.
@@ -28,7 +24,81 @@ You're reading it!
 ### Exercise 1, 2 and 3 pipeline implemented
 #### 1. Complete Exercise 1 steps. Pipeline for filtering and RANSAC plane fitting implemented.
 
-here put the code of RANSAC and expline the basic structure of the code 
+>> put an image for the table and objects? 
+
+In Exercise 1 the goal is to filter a point cloud data based on known information. to do it first downsample the data so it becomes easier to compute.Then, spasify the range from the view that the objects. Here the range in z axis is between (0.6,1.1) and y axis (-0.45,0.45).Lastly, Random Sample Consensus (RANSAC) is used to saparate the items from the table. the notes on the fallowing code explain the steps:
+
+```python
+#note: this code from the project code from callback method:
+# TODO: Convert ROS msg to PCL data
+cloud = ros_to_pcl(pcl_msg)
+
+# TODO: Voxel Grid Downsampling
+vox = cloud.make_voxel_grid_filter()
+LEAF_SIZE = 0.005 #0.01   
+# Set the voxel (or leaf) size  
+vox.set_leaf_size(LEAF_SIZE, LEAF_SIZE, LEAF_SIZE)
+cloud_filtered = vox.filter()
+
+# TODO: PassThrough Filter
+passthrough = cloud_filtered.make_passthrough_filter()
+
+# Assign axis and range to the passthrough filter object.
+filter_axis = 'z'
+passthrough.set_filter_field_name(filter_axis)
+axis_min = 0.6 
+axis_max = 1.1
+passthrough.set_filter_limits(axis_min, axis_max)
+cloud_filtered = passthrough.filter()
+
+#To remove the two boxes for the sides from the view of the robot
+passthrough = cloud_filtered.make_passthrough_filter()
+filter_axis = 'y'
+passthrough.set_filter_field_name(filter_axis)
+axis_min = -0.45 
+axis_max = 0.45 
+passthrough.set_filter_limits(axis_min, axis_max)
+
+# Finally use the filter function to obtain the resultant point cloud.
+cloud_filtered = passthrough.filter()
+
+outlier_filter = cloud_filtered.make_statistical_outlier_filter()
+# Set the number of neighboring points to analyze for any given point
+outlier_filter.set_mean_k(10)
+
+# Set threshold scale factor
+x = .005 #1.0
+
+# Any point with a mean distance larger than global (mean distance+x*std_dev) will be considered outlier
+outlier_filter.set_std_dev_mul_thresh(x)
+
+# Finally call the filter function for magic
+cloud_filtered = outlier_filter.filter()
+
+# TODO: RANSAC Plane Segmentation
+# Create the segmentation object
+seg = cloud_filtered.make_segmenter()
+
+# Set the model you wish to fit 
+seg.set_model_type(pcl.SACMODEL_PLANE)
+seg.set_method_type(pcl.SAC_RANSAC)
+
+# Max distance for a point to be considered fitting the model
+# Experiment with different values for max_distance 
+# for segmenting the table
+max_distance = 0.006 #was 0.01
+seg.set_distance_threshold(max_distance)
+
+# Call the segment function to obtain set of inlier indices and model coefficients
+inliers, coefficients = seg.segment()
+
+# TODO: Extract inliers and outliers
+# Extract inliers
+extracted_inliers = cloud_filtered.extract(inliers, negative=False)
+# Extract outliers
+extracted_outliers = cloud_filtered.extract(inliers, negative=True)
+```
+
 
 #### 2. Complete Exercise 2 steps: Pipeline including clustering for segmentation implemented.  
 
