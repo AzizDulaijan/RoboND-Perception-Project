@@ -14,8 +14,8 @@
 ## [Rubric](https://review.udacity.com/#!/rubrics/1067/view) Points
 ### Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
 
-[image1]:images/table.PNG
-[image2]:images/items_without_table.PNG
+[image1]: Images/table.PNG
+[image2]: Images/items_without_table.PNG
 
 ---
 ### Writeup / README
