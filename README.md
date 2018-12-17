@@ -16,7 +16,6 @@
 
 [image1]: Images/table.PNG
 [image2]: Images/items_without_table.PNG
-# image 3 dude
 [image4]: Images/training.PNG
 [image5]: Images/figure_1-RGB.png
 [image6]: Images/figure_1-HSV.png
@@ -237,7 +236,7 @@ Here are the SVM results of each items list for the project:
 
 here add an image of each items set how the robots classefied them first one (3/3) secound one (4/5) last one somehow (8/8) or (9/8)
 
-![alt text][image10]
+![alt text][image3]
 ![alt text][image11]
 ![alt text][image12]
 
