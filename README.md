@@ -16,6 +16,7 @@
 
 [image1]: Images/table.PNG
 [image2]: Images/items_without_table.PNG
+[image4]: Images/training.PNG
 
 ---
 ### Writeup / README
@@ -149,9 +150,9 @@ Here is an example of how to include an image in your writeup.
 
 the point cloud data is filterd , and grouped into clusters now its time to recognize each cluster. to do Classification there first must be a feature data, and a teained classifire. to generate features for each item the sensor stick world is launched, then each item appers with rondomized angles. as shown in the image below:
 
->> insert an image for the sensor stick training palce
+![alt text][image4]
 
-the generated features data is used to train a classfire. I first tested 
+the generated features data is used to train a classfire. SVM is the classifire used in this program. I have tested the traing SVM using RGB and HSV and with diffrant nuber of iterations, here are the results  
 Now the SVM classfire is trained using the generated features data, 
 
 here talk about the method used for classeficaltion and how its done, talk about the stips to ganarate features and train SVM
