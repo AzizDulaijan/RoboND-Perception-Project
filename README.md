@@ -26,21 +26,21 @@ You're reading it!
 
 >> put an image for the table and objects? 
 
-In Exercise 1 the goal is to filter a point cloud data based on known information. to do it first downsample the data so it becomes easier to compute.Then, spasify the range from the view that the objects. Here the range in z axis is between (0.6,1.1) and y axis (-0.45,0.45).Lastly, Random Sample Consensus (RANSAC) is used to saparate the items from the table. the notes on the fallowing code explain the steps:
+In Exercise 1 the goal is to filter a point cloud data based on known information. To do it first downsample the data so it becomes easier to compute.Then, spasify the range from the view that the objects are in. Here the range in z axis is between (0.6,1.1) and y axis (-0.45,0.45).Lastly, Random Sample Consensus (RANSAC) is used to saparate the items from the table. The comments on the fallowing code explain the steps:
 
 ```python
 #note: this code from the project code from callback method:
 # TODO: Convert ROS msg to PCL data
 cloud = ros_to_pcl(pcl_msg)
 
-# TODO: Voxel Grid Downsampling
+# Voxel Grid Downsampling
 vox = cloud.make_voxel_grid_filter()
 LEAF_SIZE = 0.005 #0.01   
 # Set the voxel (or leaf) size  
 vox.set_leaf_size(LEAF_SIZE, LEAF_SIZE, LEAF_SIZE)
 cloud_filtered = vox.filter()
 
-# TODO: PassThrough Filter
+# PassThrough Filter
 passthrough = cloud_filtered.make_passthrough_filter()
 
 # Assign axis and range to the passthrough filter object.
@@ -75,7 +75,7 @@ outlier_filter.set_std_dev_mul_thresh(x)
 # Finally call the filter function for magic
 cloud_filtered = outlier_filter.filter()
 
-# TODO: RANSAC Plane Segmentation
+# RANSAC Plane Segmentation
 # Create the segmentation object
 seg = cloud_filtered.make_segmenter()
 
@@ -92,7 +92,7 @@ seg.set_distance_threshold(max_distance)
 # Call the segment function to obtain set of inlier indices and model coefficients
 inliers, coefficients = seg.segment()
 
-# TODO: Extract inliers and outliers
+# Extract inliers and outliers
 # Extract inliers
 extracted_inliers = cloud_filtered.extract(inliers, negative=False)
 # Extract outliers
