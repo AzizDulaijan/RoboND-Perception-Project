@@ -22,9 +22,9 @@
 [image7]: Images/figure_1-1.png
 [image8]: Images/figure_22.png
 [image9]: Images/figure_3.png
-[image10]: Images/items_1.png
-[image11]: Images/items_2.png
-[image12]: Images/items_3_2.png
+[image10]: Images/items_1.PNG
+[image11]: Images/items_2.PNG
+[image12]: Images/items_3_2.PNG
 
 
 ---
@@ -234,16 +234,85 @@ Here are the SVM results of each items list for the project:
 
 #### 1. For all three tabletop setups (`test*.world`), perform object recognition, then read in respective pick list (`pick_list_*.yaml`). Next construct the messages that would comprise a valid `PickPlace` request output them to `.yaml` format.
 
-here add an image of each items set how the robots classefied them first one (3/3) secound one (4/5) last one somehow (8/8) or (9/8)
+Here are images of each items set that shows how the robots classefied them. first set (3/3) secound set (4/5) last set (8/8):
 
-![alt text][image3]
+![alt text][image10]
 ![alt text][image11]
 ![alt text][image12]
 
-And here's another image! 
-![demo-2](https://user-images.githubusercontent.com/20687560/28748286-9f65680e-7468-11e7-83dc-f1a32380b89c.png)
+Here is the code for generating the `.yaml` files which are uploded in this robository. 
 
-Spend some time at the end to discuss your code, what techniques you used, what worked and why, where the implementation might fail and how you might improve it if you were going to pursue this project further.  
+```python
+def pr2_mover(object_list):
+
+# Initialize variables
+TEST_SCENE_NUM = Int32()
+TEST_SCENE_NUM.data = 3 
+OBJECT_NAME = String()
+WHICH_ARM = String() 
+PICK_POSE = Pose()
+PLACE_POSE = Pose()
+
+labels = []
+centroids = [] # to be list of tuples (x, y, z)
+output_yaml = []
+
+# Get/Read parameters
+# get parameters
+object_list_param = rospy.get_param('/object_list')
+
+#  Parse parameters into individual variables
+#object_name = object_list_param[i]['name']
+#object_group = object_list_param[i]['group']
+
+# Rotate PR2 in place to capture side tables for the collision map
+
+# Loop through the pick list
+for object in object_list:
+    labels.append(object.label)
+    # TODO: Get the PointCloud for a given object and obtain it's centroid
+    points_arr = ros_to_pcl(object.cloud).to_array()
+    centroids.append(np.mean(points_arr, axis=0)[:3])
+
+for i in range(0,len(object_list_param)):
+
+    OBJECT_NAME.data = object_list_param[i]['name']
+    #  Create 'place_pose' for the object
+    PICK_POSE.position.x = np.asscalar(centroids[i][0])
+    PICK_POSE.position.y = np.asscalar(centroids[i][1])
+    PICK_POSE.position.z = np.asscalar(centroids[i][2])
+
+    #  Assign the arm to be used for pick_place
+    PLACE_POSE.position.x = 0.0
+    PLACE_POSE.position.z = 0.605
+
+    if(object_list_param[i]['group'] == 'red'):
+        PLACE_POSE.position.y = 0.71
+        WHICH_ARM.data = "left"
+    else:
+        PLACE_POSE.position.y = -0.71
+        WHICH_ARM.data = "right"
 
 
+    #  Create a list of dictionaries (made with make_yaml_dict()) for later output to yaml format
+    yaml_dict = make_yaml_dict(TEST_SCENE_NUM, OBJECT_NAME, WHICH_ARM, PICK_POSE, PLACE_POSE)
+    output_yaml.append(yaml_dict)
 
+    # Wait for 'pick_place_routine' service to come up
+    rospy.wait_for_service('pick_place_routine')
+
+    try:
+        pick_place_routine = rospy.ServiceProxy('pick_place_routine', PickPlace)
+
+        #  Insert your message variables to be sent as a service request
+        resp = pick_place_routine(TEST_SCENE_NUM, OBJECT_NAME, WHICH_ARM, PICK_POSE, PLACE_POSE)
+
+        print ("Response: ",resp.success)
+
+    except rospy.ServiceException, e:
+        print "Service call failed: %s"%e
+
+# Output your request parameters into output yaml file
+    yaml_filename = 'output_'+str(TEST_SCENE_NUM.data)+'.yaml'
+    send_to_yaml(yaml_filename,output_yaml)
+```
